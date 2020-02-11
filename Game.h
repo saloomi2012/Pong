@@ -21,6 +21,7 @@ private:
     sf::Clock clock;
     bool leftDown = false, rightDown = false, leftUp = false, rightUp = false;
     bool paused = false;
+
 public:
     Game();
 

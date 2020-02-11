@@ -107,14 +107,17 @@ void Game::update() {
     && ball.getPosition().y <= leftPlayer.getPosition().y+leftPlayer.getSize().y
     && ball.getPosition().y >= leftPlayer.getPosition().y) {
         ballVelocity.x *= sin(3 * 3.14159 / 2);
+        beep.play();
     } else if(ball.getPosition().x + 20 >= rightPlayer.getPosition().x
               && ball.getPosition().x + 20 <= rightPlayer.getPosition().x + rightPlayer.getSize().x
               && ball.getPosition().y <= rightPlayer.getPosition().y+rightPlayer.getSize().y
               && ball.getPosition().y >= rightPlayer.getPosition().y) {
         ballVelocity.x *= sin(3 * 3.14159 / 2);
+        beep.play();
 
     } else if(ball.getPosition().y + 20 >= 480 || ball.getPosition().y <= 0) {
         ballVelocity.y *= sin(3 * 3.14159 / 2);
+        beep.play();
     }
 
     ball.move(ballVelocity*clock.getElapsedTime().asSeconds());
@@ -147,6 +150,8 @@ void Game::update() {
         ball.setPosition(640/2-10, 480/2-10);
         ballVelocity.x = 0;
         ballVelocity.y = 0;
+        leftPlayer.setPosition(10, 480/2-(100/2));
+        rightPlayer.setPosition(640-20, 480/2-(100/2));
         paused = true;
     }
 
