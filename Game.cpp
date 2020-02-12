@@ -179,6 +179,7 @@ void Game::update() {
         ballVelocity.y = 0;
         leftPlayer.setPosition(10, 480.0f/2-(100.0f/2));
         rightPlayer.setPosition(640-20, 480.0f/2-(100.0f/2));
+        
         std::string text = std::to_string(scores[0])+"\t\t\t"+ std::to_string(scores[1]);
         score.setString(text);
         paused = true;
