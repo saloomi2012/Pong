@@ -4,19 +4,18 @@
 
 #include "Game.h"
 #include <cmath>
-#include <cstdlib>
-#include <ctime>
+#include <string>
 
-Game::Game(): win(sf::VideoMode(640, 480), "Pong") {
+Game::Game(): win(sf::VideoMode(640, 480), "Pong"), dist(0, 1) {
     const int length=100, radius=10;
     leftPlayer.setSize({10, length});
     rightPlayer.setSize({10, length});
 
-    leftPlayer.setPosition(10, 480/2-(length/2));
-    rightPlayer.setPosition(640-20, 480/2-(length/2));
+    leftPlayer.setPosition(10, 480.0f/2-(length/2.0f));
+    rightPlayer.setPosition(640-20, 480.0f/2-(length/2.0f));
 
     ball.setRadius(radius);
-    ball.setPosition(640/2-radius, 480/2-radius);
+    ball.setPosition(640.0f/2-radius, 480.0f/2-radius);
 
     leftPlayer.setFillColor(sf::Color::White);
     rightPlayer.setFillColor(sf::Color::White);
@@ -25,19 +24,35 @@ Game::Game(): win(sf::VideoMode(640, 480), "Pong") {
     beepSound.loadFromFile("beep.wav");
     beep.setBuffer(beepSound);
 
-    srand(time(NULL));
 
-    int xdir = rand() % 2;
-    int ydir = rand() % 2;
+    font.loadFromFile("munro-small.ttf");
+    scores[0] = 0;
+    scores[1] = 0;
+    score.setFont(font);
+    score.setPosition(100, 10);
+    score.setCharacterSize(100);
+    score.setFillColor(sf::Color::White);
+    score.setStyle(sf::Text::Regular);
+    std::string text = std::to_string(scores[0])+"\t\t\t"+ std::to_string(scores[1]);
+    score.setString(text);
 
-    ballVelocity.x = (xdir == 1) ? 250 : -250;
-    ballVelocity.y = (ydir == 1) ? 250 : -250;
+    std::random_device rd;
+    mt.seed(rd);
+
+
+
+
+    ballVelocity.x = 0;
+    ballVelocity.y = 0;
+    paused = true;
     clock.restart();
 
     win.setFramerateLimit(60);
     loop();
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
 void Game::loop() {
 
     while(true) {
@@ -47,16 +62,17 @@ void Game::loop() {
     }
 
 }
+#pragma clang diagnostic pop
 
 void Game::input() {
-    sf::Event e;
+    sf::Event e{};
     while(win.pollEvent(e)) {
         switch (e.type) {
             case sf::Event::KeyPressed:
                 if(paused) {
                     paused = false;
-                    int xdir = rand() % 2;
-                    int ydir = rand() % 2;
+                    int xdir = dist(mt);
+                    int ydir = dist(mt);
 
                     ballVelocity.x = (xdir == 1) ? 250 : -250;
                     ballVelocity.y = (ydir == 1) ? 250 : -250;
@@ -123,9 +139,9 @@ void Game::update() {
     ball.move(ballVelocity*clock.getElapsedTime().asSeconds());
 
     if(leftUp) {
-        leftPlayer.move(0, -250*clock.getElapsedTime().asSeconds());
+        leftPlayer.move(0, -270*clock.getElapsedTime().asSeconds());
     } else if(leftDown) {
-        leftPlayer.move(0, 250*clock.getElapsedTime().asSeconds());
+        leftPlayer.move(0, 270*clock.getElapsedTime().asSeconds());
     }
 
     if(leftPlayer.getPosition().y < 0) {
@@ -135,9 +151,9 @@ void Game::update() {
     }
 
     if(rightUp) {
-        rightPlayer.move(0, -250*clock.getElapsedTime().asSeconds());
+        rightPlayer.move(0, -270*clock.getElapsedTime().asSeconds());
     } else if(rightDown) {
-        rightPlayer.move(0, 250*clock.getElapsedTime().asSeconds());
+        rightPlayer.move(0, 270*clock.getElapsedTime().asSeconds());
     }
 
     if(rightPlayer.getPosition().y < 0) {
@@ -146,12 +162,25 @@ void Game::update() {
         rightPlayer.setPosition(rightPlayer.getPosition().x, 480 - rightPlayer.getSize().y);
     }
 
-    if(ball.getPosition().x + 20 < 0 || ball.getPosition().x > 640) {
-        ball.setPosition(640/2-10, 480/2-10);
+    if(ball.getPosition().x + 20 < 0) {
+        scores[1]++;
+        ball.setPosition(640.0f/2-10, 480.0f/2-10);
         ballVelocity.x = 0;
         ballVelocity.y = 0;
-        leftPlayer.setPosition(10, 480/2-(100/2));
-        rightPlayer.setPosition(640-20, 480/2-(100/2));
+        leftPlayer.setPosition(10, 480.0f/2-(100.0f/2));
+        rightPlayer.setPosition(640-20, 480.0f/2-(100.0f/2));
+        std::string text = std::to_string(scores[0])+"\t\t\t"+ std::to_string(scores[1]);
+        score.setString(text);
+        paused = true;
+    } else if(ball.getPosition().x > 640) {
+        scores[0]++;
+        ball.setPosition(640.0f/2-10, 480.0f/2-10);
+        ballVelocity.x = 0;
+        ballVelocity.y = 0;
+        leftPlayer.setPosition(10, 480.0f/2-(100.0f/2));
+        rightPlayer.setPosition(640-20, 480.0f/2-(100.0f/2));
+        std::string text = std::to_string(scores[0])+"\t\t\t"+ std::to_string(scores[1]);
+        score.setString(text);
         paused = true;
     }
 
@@ -167,6 +196,10 @@ void Game::draw() {
     win.draw(leftPlayer);
     win.draw(rightPlayer);
     win.draw(ball);
+
+    if(paused) {
+        win.draw(score);
+    }
     win.display();
 
 }

@@ -9,6 +9,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 
+#include <random>
+
 class Game {
 private:
     sf::RenderWindow win;
@@ -19,6 +21,12 @@ private:
     sf::Sound beep;
     sf::Vector2f ballVelocity;
     sf::Clock clock;
+    sf::Font font;
+    sf::Text score;
+
+    std::mt19937 mt;
+    std::uniform_real_distribution<int> dist;
+    int scores[2];
     bool leftDown = false, rightDown = false, leftUp = false, rightUp = false;
     bool paused = false;
 
